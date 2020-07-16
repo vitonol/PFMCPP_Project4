@@ -147,13 +147,12 @@ struct Point
 {
     Point(float a, float b) : x(a), y(b) { }
 
-    
-    template<typename TemplatedType>
-    Point(TemplatedType& a, TemplatedType& b) : 
+    template<typename NumericType>
+    Point(NumericType& a, NumericType& b) : 
     Point(static_cast<float>(a), static_cast<float>(b)) { }  
 
-    template<typename TemplatedType>
-    Point& multiply(TemplatedType& m)
+    template<typename NumericType>
+    Point& multiply(NumericType& m)
     {
         return multiply(static_cast<float>(m));
     }
@@ -170,8 +169,7 @@ struct Point
         std::cout << "Point " <<"{ x: " << x << ", y: " << y << " }" <<std::endl;
     }
 private:
-    float x{0};
-    float y{0};
+    float x{0}, y{0};
 };
 
 
@@ -201,11 +199,10 @@ private:
 //===================================================================================
 
 
-template <typename TemplatedType>
-
+template <typename NumericType>
 struct Numeric
 {
-    using Type = Temporary<TemplatedType>;
+    using Type = Temporary<NumericType>;
     
     Numeric(Type v) : un( new Type(v)) { }
     Numeric() : Numeric(0) {}
@@ -221,11 +218,11 @@ struct Numeric
     // ft = ft.pow(4);
     
 
-    operator TemplatedType() const
+    operator NumericType() const
     {
         return *un;
     }
-    operator TemplatedType&()
+    operator NumericType&()
     {
         return *un;
     }
@@ -233,35 +230,35 @@ struct Numeric
     template <typename OtherTT>
     Numeric& operator = (const OtherTT& t)
     {
-        *un = static_cast<TemplatedType>(t);
+        *un = static_cast<NumericType>(t);
         return *this;
     }
 
     template <typename OtherTT>
     Numeric& operator += (const OtherTT& t)
     {
-        *un += static_cast<TemplatedType>(t);
+        *un += static_cast<NumericType>(t);
         return *this;
     }
 
     template <typename OtherTT>
     Numeric& operator -= (const OtherTT& t)
     {
-        *un -= static_cast<TemplatedType>(t);
+        *un -= static_cast<NumericType>(t);
         return *this;
     }
 
     template <typename OtherTT>
     Numeric& operator *= (const OtherTT& t)
     {
-        *un *= static_cast<TemplatedType>(t);
+        *un *= static_cast<NumericType>(t);
         return *this;
     }
     
     template <typename OtherTT>
     Numeric& operator /= (const OtherTT& t)
     {
-        if constexpr (std::is_same<TemplatedType, int>::value)
+        if constexpr (std::is_same<NumericType, int>::value)
         {
             if constexpr (std::is_same<decltype(t), const int>::value)
             {
@@ -281,7 +278,7 @@ struct Numeric
         {
             std::cout << "warning: trying to divide by zero!\n";
         }
-        *un /= static_cast<TemplatedType>(t);
+        *un /= static_cast<NumericType>(t);
         return *this;
     }
 
@@ -302,7 +299,7 @@ struct Numeric
     {
         if(un != nullptr)
         {
-            *un = static_cast<Type>(std::pow(*un, static_cast<const TemplatedType>(x)) );
+            *un = static_cast<Type>(std::pow(*un, static_cast<const NumericType>(x)) );
 
         }
         return *this; 
@@ -331,10 +328,11 @@ private:
 //+++++++++++++++++++++++++
 
 ///CUBE FUNCTION///
-template <typename TemplatedType>
-void cube (std::unique_ptr<TemplatedType>& un)
+template <typename NumericType>
+void cube (std::unique_ptr<NumericType>& un)
 {
-    *un = (*un) * (*un) * (*un);
+    auto& r = *un;
+    r = r * r * r;
 }
 
 // Free Functions    
@@ -490,12 +488,13 @@ void part4()
     std::cout << "pow(it1, dtExp) = " << it1 << "^" << dtExp << " = " << it1.pow(static_cast<int>(dtExp))  << std::endl;    
     std::cout << "===============================\n" << std::endl; 
 
+*/
     // ------------------------------------------------------------
     //                          Point tests
     // ------------------------------------------------------------
-    Numeric ft2(3.0f);
-    Numeric dt2(4.0);
-    Numeric it2(5);
+    Numeric<float>ft2(3.0f);
+    Numeric<double>dt2(4.0);
+    Numeric<int>it2(5);
     float floatMul = 6.0f;
 
     // Point tests with float
