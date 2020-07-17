@@ -146,23 +146,26 @@ Use a service like https://www.diffchecker.com/diff to compare your output.
 struct Point
 {
     Point(float a, float b) : x(a), y(b) { }
+    Point() = default;
 
     template<typename NumericType>
     Point(NumericType& a, NumericType& b) : 
     Point(static_cast<float>(a), static_cast<float>(b)) { }  
 
     template<typename NumericType>
-    Point& multiply(NumericType& m)
+    Point& multiply(const NumericType& m)
     {
-        return multiply(static_cast<float>(m));
-    }
-
-    Point& multiply(float m)
-    {
-        x *= m;
-        y *= m;
+        x *= static_cast<float>(m);
+        y *= static_cast<float>(m);
         return *this;
     }
+
+    // Point& multiply(float m)
+    // {
+    //     x *= m;
+    //     y *= m;
+    //     return *this;
+    // }
     
     void toString()
     {
@@ -489,6 +492,7 @@ void part4()
     std::cout << "===============================\n" << std::endl; 
 
 */
+/*
     // ------------------------------------------------------------
     //                          Point tests
     // ------------------------------------------------------------
@@ -729,7 +733,7 @@ int main() // NEW MAIN
     Numeric<float> f(0.1f);
     Numeric<int> i(3);
     Numeric<double> d(4.2);
-    
+
     f += 2.f;
     f -= i;
     f *= d;
