@@ -146,7 +146,6 @@ Use a service like https://www.diffchecker.com/diff to compare your output.
 struct Point
 {
     Point(float a, float b) : x(a), y(b) { }
-    Point() = default;
 
     template<typename NumericType>
     Point(NumericType& a, NumericType& b) : 
@@ -207,8 +206,9 @@ struct Numeric
 {
     using Type = Temporary<NumericType>;
     
-    Numeric(Type v) : un( new Type(v)) { }
-    Numeric() : Numeric(0) {}
+    Numeric(NumericType v) : un( std::make_unique<Type>(v)) { }
+    
+    // Numeric() : Numeric(0) {}
 
     ~Numeric()
     {
