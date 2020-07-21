@@ -8,7 +8,7 @@ Create a branch named Part9
  
  DO NOT EDIT YOUR PREVIOUS main(). 
  
- 1) add the Leak Detector files from Project5
+ 1) add the Leak Detector files from Project5 
  
  2) add these macros after the JUCE_LEAK_DETECTOR macro :
  */
