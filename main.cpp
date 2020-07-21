@@ -74,6 +74,7 @@ Use a service like https://www.diffchecker.com/diff to compare your output.
 #include <cmath>
 #include <memory>
 #include <functional>
+#include "LeakedObjectDetector.h"
 
 #include <typeinfo>
 template<typename NumericType>
