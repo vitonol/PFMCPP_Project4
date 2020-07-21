@@ -17,7 +17,7 @@ namespace juce
         {
             if (--(getCounter().numObjects) < 0)
             {
-                std::cout << "*** Dangling pointer deletion! Class: " << getLeakedObjectClassName() << std::endl;
+                std::cout << "*** Dangling pointer deletion! Class: " << getLeakedObjectOwnerClass() << std::endl;
                 assert(false);
             }
         }
@@ -33,7 +33,7 @@ namespace juce
             {
                 if (numObjects.value > 0)
                 {
-                    std::cout << "*** Leaked objects detected: " << numObjects.value << " instance(s) of class " << getLeakedObjectClassName() << std::endl;
+                    std::cout << "*** Leaked objects detected: " << numObjects.value << " instance(s) of class " << getLeakedObjectOwnerClass() << std::endl;
                     assert(false);
                 }
             }
@@ -41,9 +41,9 @@ namespace juce
             Atomic<int> numObjects;
         };
         
-        static const char* getLeakedObjectClassName()
+        static const char* getLeakedObjectOwnerClass()
         {
-            return OwnerClass::getLeakedObjectClassName();
+            return OwnerClass::getLeakedObjectOwnerClass();
         }
         
         static LeakCounter& getCounter() noexcept
@@ -58,5 +58,14 @@ namespace juce
 #define JUCE_JOIN_MACRO(item1, item2)  JUCE_JOIN_MACRO_HELPER (item1, item2)
 #define JUCE_LEAK_DETECTOR(OwnerClass) \
 friend class juce::LeakedObjectDetector<OwnerClass>; \
-static const char* getLeakedObjectClassName() noexcept { return #OwnerClass; } \
+static const char* getLeakedObjectOwnerClass() noexcept { return #OwnerClass; } \
 juce::LeakedObjectDetector<OwnerClass> JUCE_JOIN_MACRO (leakDetector, __LINE__);
+
+#define JUCE_DECLARE_NON_COPYABLE(OwnerClass) \
+            OwnerClass (const OwnerClass&) = delete;\
+            OwnerClass& operator= (const OwnerClass&) = delete;
+
+#define JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OwnerClass) \
+            JUCE_DECLARE_NON_COPYABLE(OwnerClass) \
+            JUCE_LEAK_DETECTOR(OwnerClass)
+
