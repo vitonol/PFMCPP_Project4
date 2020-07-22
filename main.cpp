@@ -75,8 +75,19 @@ Use a service like https://www.diffchecker.com/diff to compare your output.
 #include <memory>
 #include <functional>
 #include "LeakedObjectDetector.h"
-
 #include <typeinfo>
+
+/*
+RULE OF 5:
+destructor
+copy constructor
+copy assignment operator
+move constructor
+move assignment operator
+
+*/
+
+//+++++++++++++ TEMPORARY CLASS++++++++++++++++++++++
 template<typename NumericType>
 struct Temporary
 {
@@ -85,6 +96,29 @@ struct Temporary
         std::cout << "I'm a Temporary<" << typeid(v).name() << "> object, #"
                   << counter++ << std::endl;
     }
+
+    // ~Temporary() = default; { } // destructor 
+    ~Temporary() { delete v; } 
+
+    Temporary(const Temporary& other)
+    {
+        reallocateFromOther( other ); // copy constructor
+    }  
+    // // Temporary(const Temporary& _t) : v(_t.t) { } // user defined
+    // // Temporary(const Temporary&) = default; 
+
+    Temporary& operator= (Temporary other) // Copy assignment operator
+    {
+        reallocateFromOther( other );
+        return *this; // allows chaining
+    } 
+    // // Temporary& Temporary::operator= (const Temporary&) = default;
+
+    // Temporary(Temporary&&) { } // move constructor
+    // // Temporary(Temporary&&) = default;
+
+    // Temporary& operator=( Temporary&&) { } // move assignment operator
+    // // Temporary& Temporary:: operator=( Temporary&&) = default;
 
     operator NumericType() const 
     {
@@ -95,13 +129,22 @@ struct Temporary
         return v;   /* read/write function */
     }
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Temporary)
 
 private:
     static int counter;
     NumericType v;
+
+    void reallocateFromOther(const Temporary& other)
+    {
+        delete v; // prevents from double deletion
+        v = new Temporary& t;
+        memcpy( v, other.v, t );
+    }
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Temporary)
 };
 
+//++++++++++++ POINT CLASS ++++++++++++++++
 template<typename NumericType>
 int Temporary<NumericType>::counter { 0 };
 
@@ -129,20 +172,18 @@ private:
     float x{0}, y{0};
 };
 
+//+++++++++++++ NUMERIC CLASS++++++++++++++++++++++
 template <typename NumericType>
 struct Numeric
 {
     using Type = Temporary<NumericType>;
     
     Numeric(NumericType v) : un( std::make_unique<Type>(v)) { }
-    
-    // Numeric() : Numeric(0) {}
-
+ 
     ~Numeric()
     {
         un = nullptr;
     }
-
 
     operator NumericType() const
     {
@@ -238,19 +279,22 @@ struct Numeric
         return *this; 
     }
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Numeric)
 
 private:
     std::unique_ptr<Type> un { new Type() };
+    
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Numeric)
 };
 
-///CUBE FUNCTION///
+//++++++++++++++ CUBE FUNCTION +++++++++++++++++
 template <typename NumericType>
 void cube (std::unique_ptr<NumericType>& un)
 {
     auto& r = *un;
     r = r * r * r;
 }
+//_________________________________________________
+
 
 int main() // NEW MAIN
 {
