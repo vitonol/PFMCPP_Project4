@@ -98,24 +98,14 @@ struct Temporary
                   << counter++ << std::endl;
     }
 
-    // ~Temporary();
     ~Temporary() = default; // destructor 
-    // ~Temporary() { delete v; }
 
  /*
     ALREADY HAVE THESE:
-
-    // ==================== Copy constructor ========================
-    Temporary(const Temporary& other){ } 
+    // ==================== Copy constructor =======================
     Temporary(const Temporary& _t) : v(_t.t) { } // user defined
-    Temporary(const Temporary&) = default; 
-
     // =================== Copy assignment operator ==================
-    Temporary& operator= (Temporary other) 
-    {
-        return *this; // allows chaining
-    } 
-    Temporary& operator= (const Temporary&) = default;
+    Temporary& operator= (Temporary other) { return *this; // allows chaining }
 */
 
     // =================== move constructor ==================
@@ -182,28 +172,16 @@ struct Numeric
     using Type = Temporary<NumericType>;
     
     Numeric(NumericType v) : un( std::make_unique<Type>(v)) { }
- 
-    // ~Numeric()
-    // {
-    //     un = nullptr;
-    // }
-~Numeric() = default;
-/*///////////////////
-   This would work if I was managing the resorce.
-    Numeric( Numeric&& otherToStealFrom )
-    {
-        un = otherToStealFrom.un;
-        otherToStealFrom.un = nullptr;
-    } 
-Reference:
 
-https://www.youtube.com/watch?v=OWNeCTd7yQE
-
-*////////////////////
+    ~Numeric() = default;
+    /*///////////////////
+    std::move and the Move Assignment Operator Reference:
+    https://www.youtube.com/watch?v=OWNeCTd7yQE
+    *////////////////////
 
 
     // =================== move constructor ==================
-    Numeric( Numeric&& other ) noexcept : un( std::move(other.a) ) {} 
+    Numeric( Numeric&& other ) noexcept : un( std::move(other.un) ) {} 
 
     // =================== move assignment operator ==================
     Numeric& operator=( Numeric&& other)
