@@ -119,23 +119,19 @@ struct Temporary
 */
 
     // =================== move constructor ==================
-    // Temporary( Temporary&& otherToStealFrom ) noexcept : v(std::move(t.v)) {}
-    // Temporary( Temporary&& otherToStealFrom )
-    // {
-    //     v = otherToStealFrom.v;
-    //     otherToStealFrom.v = nullptr;
-    // } 
-    // Temporary(Temporary&&) = default;
+    Temporary( Temporary&& other ) noexcept : v(std::move(other.v) ) {}
 
     // =================== move assignment operator ==================
-    // Temporary& operator=( Temporary&& otherToStealFrom)
-    // {
-    //     v = otherToStealFrom.v;
-    //     otherToStealFrom.v = nullptr;
-    //     return *this;
-    // } 
-    // Temporary& operator=( Temporary&&) = default;
+    Temporary& operator=( Temporary&& other)
+    {
+        if (this != &other)
+        {
+            v = std::move (other.v);
+        }
+        return *this;
+    } 
 
+//_______________________________
     operator NumericType() const 
     {
         return v;   /* read-only function */ 
@@ -144,7 +140,6 @@ struct Temporary
     {
         return v;   /* read/write function */
     }
-
 
 private:
     static int counter;
@@ -188,11 +183,11 @@ struct Numeric
     
     Numeric(NumericType v) : un( std::make_unique<Type>(v)) { }
  
-    ~Numeric()
-    {
-        un = nullptr;
-    }
-
+    // ~Numeric()
+    // {
+    //     un = nullptr;
+    // }
+~Numeric() = default;
 /*///////////////////
    This would work if I was managing the resorce.
     Numeric( Numeric&& otherToStealFrom )
@@ -208,32 +203,18 @@ https://www.youtube.com/watch?v=OWNeCTd7yQE
 
 
     // =================== move constructor ==================
-    Numeric( Numeric&& other ) noexcept
-    {
-        un = other.un;
-        v = other.v;
-
-        other.un = 0;
-        other.v = nullptr;
-    } 
-
+    Numeric( Numeric&& other ) noexcept : un( std::move(other.a) ) {} 
 
     // =================== move assignment operator ==================
     Numeric& operator=( Numeric&& other)
     {
-        if (this == &other)
+        if (this != &other)
         {
-            delete v;
-
-            un = other.un;
-            v = other.v;
-
-            other.un = 0;
-            other.v = nullptr;
+            un = std::move(other.un);
         }
-
         return *this;
     } 
+//___________________
 
     operator NumericType() const
     {
