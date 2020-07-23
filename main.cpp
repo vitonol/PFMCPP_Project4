@@ -76,6 +76,7 @@ Use a service like https://www.diffchecker.com/diff to compare your output.
 #include <functional>
 #include "LeakedObjectDetector.h"
 #include <typeinfo>
+#include <utility>
 
 /*
 RULE OF 5:
@@ -118,20 +119,21 @@ struct Temporary
 */
 
     // =================== move constructor ==================
-    Temporary( Temporary&& otherToStealFrom )
-    {
-        v = otherToStealFrom.v;
-        otherToStealFrom.v = nullptr;
-    } 
+    // Temporary( Temporary&& otherToStealFrom ) noexcept : v(std::move(t.v)) {}
+    // Temporary( Temporary&& otherToStealFrom )
+    // {
+    //     v = otherToStealFrom.v;
+    //     otherToStealFrom.v = nullptr;
+    // } 
     // Temporary(Temporary&&) = default;
 
     // =================== move assignment operator ==================
-    Temporary& operator=( Temporary&& otherToStealFrom)
-    {
-        v = otherToStealFrom.v;
-        otherToStealFrom.v = nullptr;
-        return *this;
-    } 
+    // Temporary& operator=( Temporary&& otherToStealFrom)
+    // {
+    //     v = otherToStealFrom.v;
+    //     otherToStealFrom.v = nullptr;
+    //     return *this;
+    // } 
     // Temporary& operator=( Temporary&&) = default;
 
     operator NumericType() const 
@@ -191,18 +193,45 @@ struct Numeric
         un = nullptr;
     }
 
-    // =================== move constructor ==================
+/*///////////////////
+   This would work if I was managing the resorce.
     Numeric( Numeric&& otherToStealFrom )
     {
         un = otherToStealFrom.un;
         otherToStealFrom.un = nullptr;
     } 
+Reference:
+
+https://www.youtube.com/watch?v=OWNeCTd7yQE
+
+*////////////////////
+
+
+    // =================== move constructor ==================
+    Numeric( Numeric&& other ) noexcept
+    {
+        un = other.un;
+        v = other.v;
+
+        other.un = 0;
+        other.v = nullptr;
+    } 
+
 
     // =================== move assignment operator ==================
-    Numeric& operator=( Numeric&& otherToStealFrom)
+    Numeric& operator=( Numeric&& other)
     {
-        un = otherToStealFrom.un;
-        otherToStealFrom.un = nullptr;
+        if (this == &other)
+        {
+            delete v;
+
+            un = other.un;
+            v = other.v;
+
+            other.un = 0;
+            other.v = nullptr;
+        }
+
         return *this;
     } 
 
