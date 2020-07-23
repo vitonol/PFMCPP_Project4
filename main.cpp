@@ -97,28 +97,42 @@ struct Temporary
                   << counter++ << std::endl;
     }
 
-    // ~Temporary() = default; { } // destructor 
-    ~Temporary() { delete v; } 
+    // ~Temporary();
+    ~Temporary() = default; // destructor 
+    // ~Temporary() { delete v; }
 
-    Temporary(const Temporary& other)
-    {
-        reallocateFromOther( other ); // copy constructor
-    }  
-    // // Temporary(const Temporary& _t) : v(_t.t) { } // user defined
-    // // Temporary(const Temporary&) = default; 
+ /*
+    ALREADY HAVE THESE:
 
-    Temporary& operator= (Temporary other) // Copy assignment operator
+    // ==================== Copy constructor ========================
+    Temporary(const Temporary& other){ } 
+    Temporary(const Temporary& _t) : v(_t.t) { } // user defined
+    Temporary(const Temporary&) = default; 
+
+    // =================== Copy assignment operator ==================
+    Temporary& operator= (Temporary other) 
     {
-        reallocateFromOther( other );
         return *this; // allows chaining
     } 
-    // // Temporary& Temporary::operator= (const Temporary&) = default;
+    Temporary& operator= (const Temporary&) = default;
+*/
 
-    // Temporary(Temporary&&) { } // move constructor
-    // // Temporary(Temporary&&) = default;
+    // =================== move constructor ==================
+    Temporary( Temporary&& otherToStealFrom )
+    {
+        v = otherToStealFrom.v;
+        otherToStealFrom.v = nullptr;
+    } 
+    // Temporary(Temporary&&) = default;
 
-    // Temporary& operator=( Temporary&&) { } // move assignment operator
-    // // Temporary& Temporary:: operator=( Temporary&&) = default;
+    // =================== move assignment operator ==================
+    Temporary& operator=( Temporary&& otherToStealFrom)
+    {
+        v = otherToStealFrom.v;
+        otherToStealFrom.v = nullptr;
+        return *this;
+    } 
+    // Temporary& operator=( Temporary&&) = default;
 
     operator NumericType() const 
     {
@@ -133,14 +147,6 @@ struct Temporary
 private:
     static int counter;
     NumericType v;
-
-    void reallocateFromOther(const Temporary& other)
-    {
-        delete v; // prevents from double deletion
-        v = new Temporary& t;
-        memcpy( v, other.v, t );
-    }
-
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Temporary)
 };
 
@@ -184,6 +190,21 @@ struct Numeric
     {
         un = nullptr;
     }
+
+    // =================== move constructor ==================
+    Numeric( Numeric&& otherToStealFrom )
+    {
+        un = otherToStealFrom.un;
+        otherToStealFrom.un = nullptr;
+    } 
+
+    // =================== move assignment operator ==================
+    Numeric& operator=( Numeric&& otherToStealFrom)
+    {
+        un = otherToStealFrom.un;
+        otherToStealFrom.un = nullptr;
+        return *this;
+    } 
 
     operator NumericType() const
     {
